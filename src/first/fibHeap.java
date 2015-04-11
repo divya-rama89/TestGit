@@ -18,20 +18,15 @@ public class fibHeap {
 		void insert(TreeNode x){
 			if(heap == null) {
 				heap = new LinkedList<TreeNode>();
+			}
+			if(heap.size() == 0) {
 				heap.add(x);
 				System.out.println("heap.getLast = "+heap.getLast().data);
 				displayTopHeap();
 			}
 			else {
 				TreeNode temp = null;
-				if(heap ==null) {
-					//mention here
-					System.out.println("gufk");
-				}
-				else{
-					System.out.println("yayaya");
-					System.out.println(heap.getFirst().data);
-				}
+				
 				if(heap.getLast() != null) {
 					temp = heap.getLast();
 					temp.left = x;
@@ -141,8 +136,9 @@ public class fibHeap {
 				insert(e);
 			}
 		}
-		
-		meld();
+		System.out.println("from inside removemin");
+		displayTopHeap();
+		//meld();
 		min = heap.getFirst();
 		//System.out.println("inside removeMin..."+min.data);
 		//min = (min.left==null) ? min.left : min.right;
