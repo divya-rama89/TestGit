@@ -19,10 +19,11 @@ public class fibHeap {
 			if(heap == null) {
 				heap = new LinkedList<TreeNode>();
 			}
+			System.out.println("inside insert"+x.data);
 			if(heap.size() == 0) {
 				heap.add(x);
-				System.out.println("heap.getLast = "+heap.getLast().data);
-				displayTopHeap();
+				min = x;
+				
 			}
 			else {
 				TreeNode temp = null;
@@ -35,10 +36,13 @@ public class fibHeap {
 				}
 				heap.add(x);
 			//	System.out.println("temp = "+heap.getFirst().data+" "+heap.getLast().data);
+				//TODO:
 				if (x.data < min.data) {
 					min = x;
 				}
 			}
+			System.out.println("inside insert");
+			displayTopHeap();
 		}
 		
 		// outside calls: decrease key
@@ -128,10 +132,14 @@ public class fibHeap {
 		
 		removeFromTopLevel(x);
 		
-		if(min.children != null) {
+		System.out.println("from inside removemin-before");
+		displayTopHeap();
+		
+		if(x.children != null) {
+			System.out.println(x.children.size());
 			//disconnect children
-			for(TreeNode e:min.children) {
-				System.out.println("found child..."+e.data);
+			for(TreeNode e:x.children) {
+				System.out.println("found child..."+e.data+" "+x.children.size());
 				e.parent = null;
 				insert(e);
 			}
@@ -252,8 +260,8 @@ public class fibHeap {
 	}
 
 	public void displayTopHeap(){
-		System.out.print("Top level list");
-		if(heap == null){
+		System.out.println("Top level list");
+		if(heap == null || heap.size()==0){
 			return;
 		}
 		TreeNode e = heap.getFirst();
@@ -261,7 +269,7 @@ public class fibHeap {
 			System.out.print(" "+e.data);//+" "+e.left.data+" "+e.right.data);
 			e=e.left;
 		}
-		
+		System.out.print("------");
 		for(TreeNode x:heap) {
 			System.out.print(": "+ x.data);
 		}
