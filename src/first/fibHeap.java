@@ -120,6 +120,21 @@ public class fibHeap {
 			}	
 		}
 		heap.remove(x);
+		updateMin();
+	}
+	
+	public void updateMin() {
+		if(heap == null || heap.size() == 0){
+			min = null;
+		}
+		else {
+			min = heap.getFirst();
+			for(TreeNode x: heap){
+				if (x.data < min.data) {
+					min = x;
+				}
+			}
+		}
 	}
 	
 	// also include meld
