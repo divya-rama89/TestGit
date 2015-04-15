@@ -135,7 +135,7 @@ public class fibHeap {
 			return;
 		}
 		
-		//System.out.println("inside decreaseKey "+x.data);
+		System.out.println("inside decreaseKey "+x.data);
 		int temp = x.data;
 		if((temp - amount) < 0 && !forDel){
 			return;
@@ -153,7 +153,7 @@ public class fibHeap {
 		TreeNode x=find(x1);
 		if(x != null) {
 				return deleteKey(x);
-			}//System.out.println("Inside deleteKey.."+e.data);
+			}
 			
 		return -1;
 	}
@@ -239,8 +239,7 @@ public class fibHeap {
 		//	System.out.println(x.children.size());
 			//disconnect children
 			for(TreeNode e:x.children) {
-				//System.out.println("found child..."+e.data+" "+x.children.size());
-				e.parent = null;
+				System.out.println("found child..."+e.data+" "+x.children.size());
 				insert(e);
 				//displayTopHeap();
 			}
@@ -494,24 +493,48 @@ public void test2(){
 		
 		System.out.println("min value="+getMin()+" after insert ");
 		displayFull();
-		
+		displayTopHeap();
 		removeMin();
 		System.out.println("after removeMin). min value="+getMin());
 		displayFull();
-		
+		displayTopHeap();
 		
 		deleteKey(6);
 		System.out.println("after deleteKey(6). min value="+getMin());
 		displayFull();
+		displayTopHeap();
+		
+		insert(22);
+		insert(12);
+		insert(1);
+		System.out.println("after inserting(1,12,22). min value="+getMin());
 		
 		decreaseKey(15, 10);
 		System.out.println("after decreaseKey(15,10). min value="+getMin());
-		displayTopHeap();
 		displayFull();
-        removeMin();
+		displayTopHeap();
+		
+				
+		removeMin();
         System.out.println("after removeMin. min value="+getMin());
-        displayTopHeap();
         displayFull();
+        displayTopHeap();
+
+
+        decreaseKey(5,3);
+		System.out.println("after decreaseKey(5,3). min value="+getMin());
+		displayFull();
+		displayTopHeap();
+        
+        for (int i = 0; i <9; i++) {
+        	removeMin();
+            System.out.println("after removeMin. min value="+getMin());
+            displayFull();
+            displayTopHeap();	
+		}
+        
+
+        
 	}
 	
 	public static void main(String[] args){		
