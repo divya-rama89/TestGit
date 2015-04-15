@@ -3,76 +3,60 @@ package first;
 import java.io.*;
 import java.util.*;
 
-class result{
-	int weight;
-	ArrayList<Integer> path;
-	
-	public result(int w, ArrayList<Integer> p){
-		this.weight = w;
-		this.path = p;
-	}
-	
-}
-
 
 public class ssp {
 	static graph graphx;
 	static int numVer = 0;
 	static int numEdg = 0;
 	
-	public result route(int src, int dest){
-		
-		result res = new result(0, new ArrayList<Integer>());
-		return res;
-		
-	}
 	
-	public static void init(PriorityQueue<TreeNode> vertexQueue, TreeNode source){
+	public static void init(fibHeap vertexHeap, TreeNode source){
 		//fill in queue initially with all nodes
         //System.out.println("called init with "+source.data);
+		source.data = 0;
 		for(TreeNode x:graphx.vertexList){
-        	if(x != source){
-        		x.minDist = Integer.MAX_VALUE;
-        	//	System.out.println("entered here");
-        	}
-        	else{
-        		x.minDist = 0;
-        	}
+        	
         	x.previous = null;
-        	vertexQueue.add(x);
+        	
+        	vertexHeap.insert(x);
+        	//System.out.println("Inserted"+x.vertexNumber+" "+x.data);
         }
-		for(TreeNode x:vertexQueue){
-			//System.out.println("init "+x.data+" "+x.minDist);
-		}
+		
 	}
 	
     public static void findPath(TreeNode source)
     {
-    	//System.out.println("inside computePaths for "+source.data);
-    	source.minDist = 0;
-        PriorityQueue<TreeNode> vertexQueue = new PriorityQueue<TreeNode>();
+    	//System.out.println("inside computePaths for "+source.vertexNumber);
+    	source.data = 0;
+        fibHeap vertexHeap = new fibHeap();
       	
-       // vertexQueue.add(source);
-
-        init(vertexQueue, source);
+        init(vertexHeap, source);
         
-	while (!vertexQueue.isEmpty()) {
-		TreeNode u = vertexQueue.poll(); //removeMin for heap
+	while (!vertexHeap.isEmpty()) {
+		TreeNode u = vertexHeap.removeMin(); //removeMin for heap
 		//System.out.println("Polled out "+u.data);
             // Visit each edge exiting u
             for (Edge e : u.adj)
             {
             	TreeNode v = e.dest;
+            	System.out.println("inside findPath "+v.vertexNumber);
                 int weight = e.weight;
-                int fullDist = u.minDist + weight;
-		if (fullDist < v.minDist) {
-		    vertexQueue.remove(v);
-		    v.minDist = fullDist ;
-		    v.previous = u;
-		    vertexQueue.add(v);
-		}
+                int fullDist = u.data + weight;
+                if (fullDist < v.data) {
+                	int diff = v.data-fullDist;
+                	System.out.println("old value of data ="+v.data+" reducing by "+diff);
+                	vertexHeap.decreaseKey(v,diff);
+                	// v.data = fullDist ;
+                	System.out.println("setting prev neighbour to "+u.vertexNumber);
+                	v.previous = u;
+		           
+                	}
+                else{
+                	System.out.println("not entered this loop");
+                }
             }
         }
+	System.out.println("Queue empty now!");
     }
 
     public static List<TreeNode> getPath(TreeNode d)
@@ -105,6 +89,10 @@ public class ssp {
 		if(in.hasNext()){
 			numVer = in.nextInt();
 			
+			if(src > numVer || src < 0 || dest >numVer || dest <0){
+				System.out.println("Invalid input");
+				return;
+			}
 			// create a graph object
 			graphx = new first.graph(numVer);
 			
@@ -129,12 +117,12 @@ public class ssp {
 			    
 				TreeNode destNode = graphx.vertexList.get(dest);
 			    
-				    //System.out.print("Distance to " + destNode.data + ": " + destNode.minDist);
-				    System.out.println(destNode.minDist);
+				    //System.out.print("Distance to " + destNode.data + ": " + destNode.data);
+				    System.out.println(destNode.data);
 				    List<TreeNode> path = getPath(destNode);
 				    //System.out.print(" Path: ");
 				    for (int i = 0; i < path.size(); i++) {
-				    	System.out.print(path.get(i).data+" ");
+				    	System.out.print(path.get(i).vertexNumber+" ");
 					}
 				    System.out.println();
 				    

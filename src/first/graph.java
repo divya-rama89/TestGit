@@ -4,17 +4,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-class TreeNode implements Comparable<TreeNode>{
+class TreeNode {
 
-    int data; //vertex number
+	int vertexNumber;  //vertex number
+    int data;// = Integer.MAX_VALUE; // distance which is the priority decider
     public ArrayList<Edge> adj; //to hold adjacent vertices and weight
-    public int minDist = Integer.MAX_VALUE; // distance which is the priority decider
-    public TreeNode previous;
-    public int compareTo(TreeNode other)
-    {
-        return Double.compare(minDist, other.minDist);
-    }
-    
+    //public int minDist 
+    public TreeNode previous; // to hold the previous hop to go to source
+       
     // required for heap
     Boolean childCut; //childcut field for cascadecut
     TreeNode left;    // left sibling
@@ -24,7 +21,8 @@ class TreeNode implements Comparable<TreeNode>{
     int degree = 0;
 
     
-    public TreeNode(int data) {
+    public TreeNode(int vertexNumber, int data) {
+        this.vertexNumber = vertexNumber;
         this.data = data;
         this.childCut = false;
         this.children = new LinkedList<TreeNode>();
@@ -56,7 +54,7 @@ public graph(int Ver) {
     
     // build an reference list 
     for (int i = 0; i < numVer; i++) {
-    	vertexList.add(i,new TreeNode(i)); 	
+    	vertexList.add(i,new TreeNode(i, Integer.MAX_VALUE)); 	
     }
     
 }
@@ -69,7 +67,7 @@ public int getEdg(){
 	return numEdg;
 }
 
-public void addEdge(int vertexAval, int vertexBval, int weight){
+public void addEdge(int vertexAval, int vertexBval, int weight) {
 	if(vertexAval < 0 || vertexBval < 0 || weight < 0) {
 		return;
 	}
@@ -78,7 +76,7 @@ public void addEdge(int vertexAval, int vertexBval, int weight){
 	addEdge(nodeA, nodeB, weight);
 }
 
-public void addEdge(TreeNode vertexA, TreeNode vertexB, int weight){
+public void addEdge(TreeNode vertexA, TreeNode vertexB, int weight) {
 	if(vertexA == null || vertexB == null || weight < 0) {
 		return;
 	}
@@ -97,7 +95,7 @@ public void displayAdj() {
 		 TreeNode temp =vertexList.get(i);
 		 for (int j = 0; j < vertexList.get(i).adj.size(); j++) {
 		       Edge tempE =temp.adj.get(j);
-	    			System.out.print(" "+tempE.dest.data + ","+tempE.weight);
+	    			System.out.print(" "+tempE.dest.vertexNumber + ","+tempE.weight);
 	    	} 
 		 System.out.println();
 	    }

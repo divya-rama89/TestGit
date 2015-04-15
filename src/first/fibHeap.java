@@ -1,20 +1,36 @@
 package first;
 
+
 import java.io.*;
 import java.util.*;
 
+// Fibonacci heap implementation
 public class fibHeap {
 
-	TreeNode min = new TreeNode(Integer.MAX_VALUE);
+	TreeNode min ;
 	LinkedList<TreeNode> heap;
 	Hashtable<Integer,TreeNode> deg = new Hashtable<Integer,TreeNode>();
 	
-	//construct linkedlist of trees
-	public void insert(int x){
-		insert(new TreeNode(x));	    
+	public Boolean isEmpty() {
+		if(heap.size() == 0 || heap == null){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	// construct linkedlist of trees
+	// insert at root level
+	// nodeNumber = reference for the node as vertexNumber
+	// nodeVal = the distance value it holds as data
+	public void insert(int nodeNumber, int nodeVal){
+		insert(new TreeNode(nodeNumber, nodeVal));	    
 	}
 	
 	//construct linkedlist of trees
+	// Insertion of a treeNode at the root level
+	// left, right, parent fields need to be reset. childCut needs to be reset though not meaningful at root level
 	public	void insert(TreeNode x){
 		if(x == null) {
 			return;
@@ -31,14 +47,7 @@ public class fibHeap {
 				
 				heap.add(x);
 				min = x;
-			/*	System.out.println("added "+x.data+" to heap. ");
-				if(x.left != null) {
-					System.out.println("x.left= "+x.left.data);
-				}
-				if(x.right != null) {
-					System.out.println("x.right= "+x.right.data);
-				}
-				System.out.println("----"); */
+			
 			}
 			else {
 				TreeNode temp = null;
@@ -50,38 +59,29 @@ public class fibHeap {
 					
 				}
 				heap.add(x);
-				/*
-				System.out.println("added "+x.data+" to heap. ");
-				if(x.left != null) {
-					System.out.println("x.left= "+x.left.data);
-				}
-				if(x.right != null) {
-					System.out.println("x.right= "+x.right.data);
-				}
-				System.out.println("----");
-				*/
+				
 			//	System.out.println("temp = "+heap.getFirst().data+" "+heap.getLast().data);
 				//TODO:
 				if (x.data < min.data) {
 					min = x;
 				}
 			}
-			//System.out.println("inside insert");
-			//displayTopHeap();
+			
 		}
 		
-		public TreeNode find(int val){
+	//To search for a node by its vertexNumber if we do not have the direct treeNode reference
+		public TreeNode find(int vNum){
 			if(heap == null || heap.size()==0){
 				return null;
 			}
 			
 			for(TreeNode e:heap){
-				if(e.data == val){
+				if(e.vertexNumber == vNum){
 					return e;
 				}
 				else{
 					if(e.children.size() != 0) {
-						TreeNode result = lookInChildren(e, val);
+						TreeNode result = lookInChildren(e, vNum);
 						if(result != null) {
 							return result; 				
 						}
@@ -91,16 +91,17 @@ public class fibHeap {
 			return null;
 		}
 		
-		public TreeNode lookInChildren(TreeNode e, int val) {
+		// This function aids searching; Search a node with vertexNumber = vNum inside the children of node e
+		public TreeNode lookInChildren(TreeNode e, int vNum) {
 			if(e == null) {
 				return null;
 			}
 			if(e.children.size() != 0) {
 					for (TreeNode x:e.children) {
-						if(x.data == val)
+						if(x.vertexNumber == vNum)
 							return x;
 						else {
-							TreeNode result = lookInChildren(x, val);
+							TreeNode result = lookInChildren(x, vNum);
 						
 							if(result != null) {
 								return result; 				
@@ -111,65 +112,42 @@ public class fibHeap {
 			return null;
 		}
 		
-		public Boolean decreaseKey(int nodeVal, int amount){
-			TreeNode x=find(nodeVal);
+		// decreaseKey reduces the data value of a node with vertexNumber vNum by amount 
+		// Returns true if the key was found and the decreasing was valid
+		public Boolean decreaseKey(int vNum, int amount){
+			TreeNode x=find(vNum);
 			
-			if(x != null) {
-				decreaseKey(false, x, amount);
-				return true;
-			}
-			
-			return false;
-		}
-		// outside calls: decrease key
-		public void decreaseKey(TreeNode x, int amount) {
 			if(x == null) {
-				return;
+				return false;
 			}
-			decreaseKey(false, x, amount);
-		}
-	
-	// internal calls : decrease key
-	public void decreaseKey(Boolean forDel, TreeNode x, int amount) {
-		if(x == null) {
-			return;
+			
+				return decreaseKey(x, amount);
 		}
 		
-		System.out.println("inside decreaseKey "+x.data);
+		// decreaseKey function where we directly pass the node reference
+		// Returns true if the key was found and the decreasing was valid
+		public Boolean decreaseKey(TreeNode x, int amount) {
+		if(x == null) {
+			return false;
+		}
+		
 		int temp = x.data;
-		if((temp - amount) < 0 && !forDel){
-			return;
+		if((temp - amount) < 0) { // && !forDel){
+			return false;
 		}
 		x.data = temp - amount;
+		//System.out.println("new data ="+x.data);
 		if(x.parent != null) {
 			if(x.data < x.parent.data) {
 				CascadeCut(x);
 			}
 		}
-		updateMin();
-	}
-	
-	public int deleteKey(int x1) {
-		TreeNode x=find(x1);
-		if(x != null) {
-				return deleteKey(x);
-			}
-			
-		return -1;
-	}
-	
-	public int deleteKey(TreeNode x) {
-		if(x == null) {
-			return -1;
+		
+		//min updation is taken care of in insertion; need not update again
+		return true;
 		}
-		decreaseKey(true, x, Integer.MAX_VALUE);
-		int temp = x.data;
-		//min = x;
-		//updateMin();
-		removeMin(true);
-		return temp;	
-	}
 	
+	//remove node x from root level
 	public void removeFromTopLevel(TreeNode x) {
 		if(x == null) {
 			return;
@@ -197,13 +175,16 @@ public class fibHeap {
 			deg.remove(x.degree);
 		}
 		
-		
 		heap.remove(x);
 		
-		//TODO: call only if necessary
-		updateMin();
+		//updates the min value if the node removed from root level was the minimum
+		//this is true when we are removing min
+		if(x==min) {
+			updateMin();
+		}
 	}
 	
+	//updates the minimum value - iterates through root level to search for minimum value
 	public void updateMin() {
 		if(heap == null || heap.size() == 0){
 			min = null;
@@ -218,47 +199,48 @@ public class fibHeap {
 		}
 	}
 	
-	public TreeNode removeMin() {
-		return removeMin(false);
-	}
 	
-	// also include meld
-	public TreeNode removeMin(Boolean ifDel) {
+	// removes and returns the minimum value node
+	public TreeNode removeMin() {
 		//Meld and change min pointer
 		if(this.min == null) {
 			return null;
 		}
 		TreeNode x = this.min;
 		
+		// remove from root level
 		removeFromTopLevel(x);
 		
-	//	System.out.println("from inside removemin-before");
-		//displayTopHeap();
-		
+		// insert children into root level
 		if(x.children != null) {
 		//	System.out.println(x.children.size());
 			//disconnect children
 			for(TreeNode e:x.children) {
-				System.out.println("found child..."+e.data+" "+x.children.size());
+				//System.out.println("found child..."+e.data+" "+x.children.size());
+				
 				insert(e);
-				//displayTopHeap();
 			}
 		}
 		
-		if(!ifDel) meld();
-		//System.out.println("after meld, degree size "+deg.size());
-		//System.out.println("after meld, heap size "+heap.size());
-		//displayTopHeap();
+		// meld - join equal degree trees
+		meld();
+		
 		return x;
 	}
 	
-	public int getMin(){
+	// returns the minimum value data
+	public int getMin() {
 		if(this.min != null) {
 			return this.min.data;
 		}
 		return -1;
 	}
 	
+	// cascade cut operation for a node x
+	// child will be delinked from parent
+	// if the parent of x has childCut = false, it will be set to true
+	// if the parent of x has childCut = true, it will also be cut i.e. we will call cascade cut for the parent
+	// The above two condition is done recursively until a parent with childCut = false is encountered. 
 	public void CascadeCut(TreeNode x) {
 		if(x == null) {
 			return;
@@ -280,10 +262,12 @@ public class fibHeap {
 		}		
 	}
 	
+	//Delink the child from the parent node
 	public void removeFromChildrenList(TreeNode par, TreeNode child) {
 		if(par == null || child == null) {
 			return;
 		}
+		// if only one child
 		if(par.children.size() == 1) {
 			TreeNode temp = par.children.get(0);
 			if(temp == child) {
@@ -312,6 +296,7 @@ public class fibHeap {
 		par.degree--;
 	}
 	
+	// Add the child node to the parent 
 	public void addToChildrenList(TreeNode par, TreeNode child) {
 		if(par == null || child == null) {
 			return;
@@ -333,6 +318,7 @@ public class fibHeap {
 		par.degree++;
 	}
 	
+	// Melds equal degree trees in the heap so that not more than one tree exists for each degree
 	public void meld() {
 		//int iter = 0;
 		//Maintain hashTable of degree
@@ -351,6 +337,8 @@ public class fibHeap {
 			int oldDeg = e.degree;
 			next = e.left;
 		//	System.out.println("inside meld1...not in deg..e.data and deg="+e.data+e.degree);
+			 
+			//a tree corresponding to degree already exists
 			if(deg.containsKey(oldDeg)) {
 				// then degree of key not 0
 				TreeNode temp = deg.get(e.degree);
@@ -377,6 +365,7 @@ public class fibHeap {
 				}
 			} 
 				else {
+					// if no node corresponding to this degree exists, this node is recorded in the degree tree
 					deg.put(oldDeg, e);
 				}	
 				e = next;
@@ -384,10 +373,11 @@ public class fibHeap {
 		}
 		
 	}
-	updateMin();
+	//updateMin();
 }
 
-	public void displayTopHeap(){
+	// for testing purposes - display the root level nodes' data
+	public void displayTopHeap() {
 		System.out.println("Top level list");
 		if(heap == null || heap.size()==0){
 			return;
@@ -403,7 +393,8 @@ public class fibHeap {
 		}
 	}
 	
-	public void displayList(List<TreeNode> x){
+	//for displaying all level nodes' data - displays the data in the given node and the node's children
+	public void displayList(List<TreeNode> x) {
 		if(x == null) {
 			return;
 		}
@@ -419,7 +410,8 @@ public class fibHeap {
 		}
 	}
 	
-	public void displayFull(){
+	//for testing purposes - display all nodes' data
+	public void displayFull() {
 		System.out.println("full list");
 		if(heap == null || heap.size()==0){
 			return;
@@ -436,11 +428,11 @@ public class fibHeap {
 	
 	}
 	
-public void test2(){
+public void test2() {
 		
 		int[] arr = {8,7,5,30};
 		for (int i = 0; i < arr.length; i++) {
-			insert(arr[i]);
+			insert(arr[i],arr[i]);
 		}
 		displayFull();
 		meld();
@@ -448,19 +440,19 @@ public void test2(){
 		displayFull();
 }
 
-    public void test3(){
-    	insert(3);
+    public void test3() {
+    	insert(3,3);
 		displayTopHeap();
-		insert(4);
+		insert(4,4);
 		displayTopHeap();
 		//System.out.println(x.getMin());
-		insert(2);
+		insert(2,2);
 		displayTopHeap();
 
 		//x.deleteKey(4);
 		//x.displayTopHeap();
 		//System.out.println(x.getMin());
-		insert(5);
+		insert(5,5);
 	    displayTopHeap();
 	    //x.meld();
 	    
@@ -477,18 +469,41 @@ public void test2(){
 		System.out.println("after decrease key value"+getMin());
 		//System.out.println(x.removeMin().data);
 		//System.out.println(x.removeMin().data);
-		deleteKey(1);
+		//deleteKey(1);
 		displayTopHeap();
 		//System.out.println("------------------");
 		
 		//System.out.println("min value = "+x.getMin()); 
     }
 
-	public void test1(){
+    public void test(){
+    	Random rand = new Random();
+    	ArrayList<Integer> mylist=new ArrayList<Integer>(); 
+    	for (int i = 0; i < 1000; i++) {
+    		Integer x = rand.nextInt(100);
+    		insert(x,i);
+    		mylist.add(i, i);
+    	}
+    	System.out.println("---------------------------------------------inserted-------------------------------------------");
+    	displayTopHeap();
+    	removeMin();
+    	displayTopHeap();
+    	System.out.println("get min "+getMin());
+    	
+    	for (int i = 0; i < 100; i++) {
+			int y = rand.nextInt(mylist.size());
+			decreaseKey(mylist.get(y), i);
+			removeMin();
+			displayTopHeap();
+			System.out.println("get min "+getMin());
+		}
+    }
+    
+	public void test1() {
 		
-		int[] arr = {15,7,8,6,4,3,30};
+		int[] arr = {0, 0,0,0,15,7,8,6,4,3,30};
 		for (int i = 0; i < arr.length; i++) {
-			insert(arr[i]);
+			insert(arr[i],arr[i]);
 		}
 		
 		System.out.println("min value="+getMin()+" after insert ");
@@ -499,20 +514,36 @@ public void test2(){
 		displayFull();
 		displayTopHeap();
 		
-		deleteKey(6);
-		System.out.println("after deleteKey(6). min value="+getMin());
-		displayFull();
-		displayTopHeap();
-		
-		insert(22);
-		insert(12);
-		insert(1);
+		insert(22,22);
+		insert(12,12);
+		insert(1,1);
 		System.out.println("after inserting(1,12,22). min value="+getMin());
 		
-		decreaseKey(15, 10);
-		System.out.println("after decreaseKey(15,10). min value="+getMin());
+		removeMin();
+		System.out.println("after removeMin). min value="+getMin());
 		displayFull();
 		displayTopHeap();
+		
+		
+		decreaseKey(15, 8);
+		System.out.println("after decreaseKey(15,8). min value="+getMin());
+		displayFull();
+		displayTopHeap();
+		decreaseKey(8, 3);
+		System.out.println("after decreaseKey(8,3). min value="+getMin());
+		displayFull();
+		displayTopHeap();
+		decreaseKey(8, 8);
+		System.out.println("after decreaseKey(8,8). min value="+getMin());
+		displayFull();
+		displayTopHeap();
+		decreaseKey(30, 15);
+		System.out.println("after decreaseKey(30,15). min value="+getMin());
+		displayFull();
+		displayTopHeap();
+		
+		
+		
 		
 				
 		removeMin();
