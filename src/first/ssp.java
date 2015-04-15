@@ -6,8 +6,8 @@ import java.util.*;
 
 public class ssp {
 	static graph graphx;
-	static int numVer = 0;
-	static int numEdg = 0;
+	//static int numVer = 0;
+	//static int numEdg = 0;
 	
 	
 	public static void init(fibHeap vertexHeap, TreeNode source){
@@ -87,23 +87,26 @@ public class ssp {
 		Scanner	in = new Scanner(new FileReader(filename));
 		
 		if(in.hasNext()){
-			numVer = in.nextInt();
+			int numV = in.nextInt();
 			
-			if(src > numVer || src < 0 || dest >numVer || dest <0){
+			if(src > numV || src < 0 || dest >numV || dest <0){
 				System.out.println("Invalid input");
 				return;
 			}
-			// create a graph object
-			graphx = new first.graph(numVer);
 			
+			// create a graph object
+			graphx = new first.graph(numV);
+			graphx.numVer = numV;
 			//System.out.println("numver:"+numVer);
-			numEdg = in.nextInt();
+			graphx.numEdg = in.nextInt();
 			//System.out.println("numedge" + numEdg);
 			while(in.hasNext()){
 				graphx.addEdge(in.nextInt(), in.nextInt(), in.nextInt());
 				cntChk++;
 			}
-			if(cntChk != numEdg) {
+			
+			// if the number of edges not as specified, input marked as invalid
+			if(cntChk != graphx.numEdg) {
 				System.out.println("Invalid input! Program exiting!");
 				in.close();
 				return;
@@ -111,22 +114,32 @@ public class ssp {
 			//graphx.displayAdj();
 			
 			//////////SSP
+			// srcNode is the starting node
 			TreeNode srcNode = graphx.vertexList.get(src);
+			
+			// find all paths from srcNode to every other vertex
 			findPath(srcNode);
-				//System.out.println("Distance from " + srcNode.data);
+			//System.out.println("Distance from " + srcNode.data);
 			    
-				TreeNode destNode = graphx.vertexList.get(dest);
+			// destination node is the ending point
+			TreeNode destNode = graphx.vertexList.get(dest);
 			    
-				    //System.out.print("Distance to " + destNode.data + ": " + destNode.data);
-				    System.out.println(destNode.data);
-				    List<TreeNode> path = getPath(destNode);
-				    //System.out.print(" Path: ");
-				    for (int i = 0; i < path.size(); i++) {
-				    	System.out.print(path.get(i).vertexNumber+" ");
-					}
-				    System.out.println();
+			//System.out.print("Distance to " + destNode.data + ": " + destNode.data);
+	
+			//displaying the weight
+			System.out.println(destNode.data);
+			
+			// get the path to the required destination node
+			List<TreeNode> path = getPath(destNode);
+			
+			// displaying the path
+			//System.out.print(" Path: ");
+			for (int i = 0; i < path.size(); i++) {
+			    	System.out.print(path.get(i).vertexNumber+" ");
+				}
+			System.out.println();
 				    
-			    }
+	    }
 			
 			in.close();
 	} catch (FileNotFoundException e) {
