@@ -46,9 +46,9 @@ public class ssp {
 		}
 	}
 	
-    public static void computePaths(TreeNode source)
+    public static void findPath(TreeNode source)
     {
-    	System.out.println("inside computePaths for "+source.data);
+    	//System.out.println("inside computePaths for "+source.data);
     	source.minDist = 0;
         PriorityQueue<TreeNode> vertexQueue = new PriorityQueue<TreeNode>();
       	
@@ -75,7 +75,7 @@ public class ssp {
         }
     }
 
-    public static List<TreeNode> getShortestPathTo(TreeNode d)
+    public static List<TreeNode> getPath(TreeNode d)
     {
         //System.out.println("inside getShortestPathto for "+d.data);
     	List<TreeNode> path = new ArrayList<TreeNode>();
@@ -90,53 +90,57 @@ public class ssp {
 		  
 	int cntChk = 0;
 	
+	if(args.length < 3){
+		System.out.println("Not enough arguments :\n ssp <filename> <source> <destination> ");
+		return;
+	}
+
+	String filename = args[0];
+	int src = Integer.parseInt(args[1]);
+	int dest = Integer.parseInt(args[2]);
+	
 	try {
-		Scanner	in = new Scanner(new File("/home/a/workspace/first/src/abc.txt"));
+		Scanner	in = new Scanner(new FileReader(filename));
 		
 		if(in.hasNext()){
 			numVer = in.nextInt();
+			
 			// create a graph object
-			System.out.println("num vertices = "+numVer);
 			graphx = new first.graph(numVer);
-			//graphx.displayAdj();
-			System.out.println("numver:"+numVer);
+			
+			//System.out.println("numver:"+numVer);
 			numEdg = in.nextInt();
-			System.out.println("numedge" + numEdg);
+			//System.out.println("numedge" + numEdg);
 			while(in.hasNext()){
 				graphx.addEdge(in.nextInt(), in.nextInt(), in.nextInt());
 				cntChk++;
 			}
 			if(cntChk != numEdg) {
 				System.out.println("Invalid input! Program exiting!");
+				in.close();
 				return;
 			}
-			graphx.displayAdj();
+			//graphx.displayAdj();
 			
 			//////////SSP
-			for (TreeNode x : graphx.vertexList) {    
-			//{
-			//	TreeNode x = graphx.vertexList.get(3);
-			computePaths(x);
-				System.out.println("Distance from " + x.data);
-			    for (TreeNode v : graphx.vertexList)
-				{
-				    System.out.print("Distance to " + v.data + ": " + v.minDist);
-				    List<TreeNode> path = getShortestPathTo(v);
-				    System.out.print(" Path: ");
+			TreeNode srcNode = graphx.vertexList.get(src);
+			findPath(srcNode);
+				//System.out.println("Distance from " + srcNode.data);
+			    
+				TreeNode destNode = graphx.vertexList.get(dest);
+			    
+				    //System.out.print("Distance to " + destNode.data + ": " + destNode.minDist);
+				    System.out.println(destNode.minDist);
+				    List<TreeNode> path = getPath(destNode);
+				    //System.out.print(" Path: ");
 				    for (int i = 0; i < path.size(); i++) {
-				    	System.out.print(" "+path.get(i).data);
+				    	System.out.print(path.get(i).data+" ");
 					}
 				    System.out.println();
 				    
-				}
 			    }
 			
-			
-		}
-		
-		
-		
-		in.close();
+			in.close();
 	} catch (FileNotFoundException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
